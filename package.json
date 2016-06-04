@@ -1,0 +1,25 @@
+{
+  "name": "ws_multicast",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jimmyliao/ws_multicast.git"
+  },
+  "keywords": [
+    "websocket",
+    "multicast",
+    "broadcast",
+    "ws"
+  ],
+  "author": "JimmyLiao <sjliao@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jimmyliao/ws_multicast/issues"
+  },
+  "homepage": "https://github.com/jimmyliao/ws_multicast#readme"
+}
