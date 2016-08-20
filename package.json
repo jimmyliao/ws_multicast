@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/jimmyliao/ws_multicast#readme",
   "dependencies": {
+    "circular-json": "^0.3.1",
     "node-uuid": "^1.4.7",
     "ws": "^1.1.0"
   },

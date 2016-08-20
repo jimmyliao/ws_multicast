@@ -18,6 +18,7 @@
 
 var SERVER_PORT = 6789;
 
+var CircularJSON = require('circular-json');
 var uuid = require('node-uuid');
 var WebSocket = require('ws');
 var WebSocketServer = WebSocket.Server;
@@ -92,21 +93,36 @@ var clientIndex = 1;
 wss.on('connection', function(ws) {
     //console.log(Object.keys(ws));
     console.log('on connection, client protocol: ' + ws.protocol)
+    if (typeof ws.protocol == 'undefined') {
+        console.log('brocast mode')
+    }
     var client_uuid = uuid.v4();
     var nickname = "AnonymousUser" + clientIndex;
-    var client_protocol = (ws.protocol) ? ws.protocol : 'unicast';
+    var client_protocol = (typeof ws.protocol == 'undefined') ? ws.protocol : 'unicast';
     console.log('set protocol: ' + client_protocol);
     clientIndex += 1;
-    clients.push({
+    client = {
         "id": client_uuid,
         "ws": ws,
         "nickname": nickname,
         "channel": client_protocol
-    });
-    console.log('client [%s] connected', client_uuid);
+    };
+    console.log('client [%s] connected', client.nickname);
+
+    clients.push(client);
+
+    // clients.push({
+    //     "id": client_uuid,
+    //     "ws": ws,
+    //     "nickname": nickname,
+    //     "channel": client_protocol
+    // });
+    //console.log('client [%s] connected', client_uuid);
+
     var connect_message = nickname + " has connected";
     //wsSend("notification", client_uuid, nickname, connect_message);
     console.log(connect_message);
+    wsMulticast(wss.options.handleProtocols, client_uuid, nickname, connect_message);
 
     ws.on('message', function(message) {
         if (message.indexOf('/nick') === 0) {
@@ -117,6 +133,21 @@ wss.on('connection', function(ws) {
                 var nickname_message = "Client " + old_nickname + " changed to " + nickname;
                 wsSend("nick_update", client_uuid, nickname, nickname_message);
             }
+        } else if (message.indexOf('/appstatus') === 0) {
+            var app_status_message = {
+                "status": "started",
+                "cpu": {
+                    "utilization": 123,
+                    "info": "core i7",
+                    "usage": 0.0329
+                },
+                "memory": {
+                    "total": 32000,
+                    "used": 16000
+                }
+            };
+            wsSend("appstatus", app_status_message);
+
         } else {
             //wsSend("message", client_uuid, nickname, message);
             wsMulticast(wss.options.handleProtocols, client_uuid, nickname, message);
@@ -132,7 +163,7 @@ wss.on('connection', function(ws) {
                 } else {
                     disconnect_message = nickname + " has disconnected";
                 }
-                wsSend("notification", client_uuid, nickname, disconnect_message);
+                //wsSend("notification", client_uuid, nickname, disconnect_message);
                 console.log(disconnect_message);
                 clients.splice(i, 1);
             }
